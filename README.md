@@ -1,0 +1,37 @@
+# nestjs 專案題
+## 說明
+本考題為 NestJS 和 TypeScript 基本考題
+允許使用以下資源來完成考題：
+- 上網查資料
+- https://nestjs.com/
+- 使用 AI 工具
+
+請確保在使用外部資源時，理解並能夠解釋每個解決方案的原理。
+請先完成基本題，不限時間。完成基本題後，可以提交進行初步審核。在初步審核時，如果有不完整或錯誤的部分，會指出需要修正的地方。
+基本題2小時到一天內可完成,加分題可選。
+
+## 開啟專案說明
+1. vscode 開啟專案後執行 `pnpm i`
+2. 安裝完成後`pnpm start:dev`
+3. 開啟瀏覽器進入以下網址 `http://127.0.0.1/api-docs`   
+## 題目
+### 基本題
+#### 1. 觀察`src/user` 資料夾內的檔案,依照此格式完成post module.
+   post的entity在`src/post/entities/post.entity.ts`裡,使用`src/post/post.repository.service.ts`模擬資料庫.(hint: [module generate](https://docs.nestjs.com/cli/overview))
+
+#### 2. 使用dto驗證create post 的 body.
+#### 3. 將`post.repository.service.ts`內findOne改為realFindOne並模擬真實資料庫連線問題.
+error在`src/error.ts`
+1. 當 NetworkError or TimeoutError 實現retry.
+2. 當 InternalError response BadRequestException([hint](https://docs.nestjs.com/exception-filters))
+3. return = null 時 NotFoundException
+#### 4. 建立endpoint `GET /users/:id/posts` 查詢該user 有哪些posts.(hint: import userRepositoryService and postRepositoryService )
+## 檢驗
+執行`test:q1` ~ `test:q4`,
+### 加分題
+#### 1. 使用couchbase 改寫userRepositoryService and postRepositoryService
+https://www.couchbase.com/
+sdk: https://docs.couchbase.com/nodejs-sdk/current/hello-world/start-using-sdk.html
+saas: https://www.couchbase.com/products/capella
+#### 2. 假設 user 與 post 是兩個微服務,user 是主服務, post是遠端服務, 用nestjs  microservice 的 rabbitmq在 user-post module 裡完成模擬遠端調用
+doc: https://docs.nestjs.com/microservices/rabbitmq
