@@ -1,6 +1,6 @@
 // Please not modify this file
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Post } from './entities/post.entity';
 
 import {
@@ -45,6 +45,16 @@ export class PostRepositoryService {
     return postDB;
   }
 
+  async findOne(id: number) {
+    await delay(100);
+
+    const post = postDB.find((post) => post.id === id);
+    if (!post) {
+      throw NotFoundError;
+    }
+    return post;
+  }
+  
   async findByAuthorId(id: number) {
     await delay(100);
     const post = postDB.filter(post => post.authorId === id)
@@ -55,35 +65,24 @@ export class PostRepositoryService {
   }
 
   /** use for Question 3 */
-  // 1. 當 NetworkError or TimeoutError 實現retry.
-  // 2. 當 InternalError response BadRequestException([hint](https://docs.nestjs.com/exception-filters))
-  // 3. return = null 時 NotFoundException
-  async findOne(id: number): Promise<Post | null> {
-    while (true) {
-      realFindOneCount += 1;
-      if (realFindOneCount === 1) {
-        break;
-      } else if (realFindOneCount === 2) {
-        continue;
-      } else if (realFindOneCount === 3) {
-        continue;
-      } else if (realFindOneCount === 4) {
-        break;
-      } else if (realFindOneCount === 5) {
-        throw new HttpException(InternalError, HttpStatus.BAD_REQUEST);
-      } else if (realFindOneCount === 6) {
-        throw new HttpException(NotFoundError, HttpStatus.NOT_FOUND);
-      } else {
-        realFindOneCount = 1;
-        break;
-      }
+  async realFindOne(id: number): Promise<Post | null> {
+    realFindOneCount += 1;
+    if (realFindOneCount === 1) {
+      return this.findOne(id);
+    } else if (realFindOneCount === 2) {
+      throw NetworkError;
+    } else if (realFindOneCount === 3) {
+      throw TimeoutError;
+    } else if (realFindOneCount === 4) {
+      return this.findOne(id);
+    } else if (realFindOneCount === 5) {
+      throw InternalError;
+    } else if (realFindOneCount === 6) {
+      return null;
+    } else {
+      realFindOneCount = 1;
+      return this.realFindOne(id);
     }
-    await delay(100);
-    const post = postDB.find(post => post.id = id);
-    if (!post) {
-      throw NotFoundError;
-    }
-    return post;
   }
 
   async update(
