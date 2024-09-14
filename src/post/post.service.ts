@@ -4,7 +4,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostRepositoryService as PostRepositoryService } from './post.repository.service';
-import { InternalError, NotFoundError } from '../error';
+import { InternalError, NetworkError, NotFoundError, TimeoutError } from '../error';
 
 @Injectable()
 export class PostService {
@@ -22,12 +22,12 @@ export class PostService {
     const res = await this.postResposiotyService.realFindOne(id)
       .catch(
         err => {
-          if (err.message === 'Network error' || err.message === 'Timeout')
+          if (err === NetworkError || err === TimeoutError)
             return this.findOne(id)
-          if (err.message === 'Internal error')
+          if (err === InternalError)
             throw new HttpException(InternalError, HttpStatus.BAD_REQUEST)
         })
-    if (res == null) throw new HttpException(NotFoundError, HttpStatus.NOT_FOUND)
+    if (!res) throw new HttpException(NotFoundError, HttpStatus.NOT_FOUND)
     return res
   }
 
